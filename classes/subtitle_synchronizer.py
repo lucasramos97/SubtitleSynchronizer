@@ -6,36 +6,34 @@ class SubtitleSynchronizer:
     def __init__(self, delayed, second):
         self.delayed = delayed
         self.second = second
+        self.start_subtitle_synchronization = None
+        self.end_subtitle_synchronization = None
 
     def synchronize(self, line):
-        start_subtitle_synchronization, end_subtitle_synchronization = self.__get_datetime_start_and_end_subtitle_synchronization(line)
-        start_subtitle_synchronization, end_subtitle_synchronization = self.__delayed_or_hastened(start_subtitle_synchronization, end_subtitle_synchronization)
+        self.__init_start_and_end_subtitle_synchronization(line)
+        self.__delayed_or_hastened()
         
-        return self.__get_text_subtitle_synchronization(start_subtitle_synchronization, end_subtitle_synchronization)
+        return self.__get_text_subtitle_synchronization()
     
-    def __get_datetime_start_and_end_subtitle_synchronization(self, line):
-        start_and_end_subtitle_synchronization = line.split(' --> ')
-        start_subtitle_synchronization = self.__get_datetime_to_string(start_and_end_subtitle_synchronization[0])
-        end_subtitle_synchronization = self.__get_datetime_to_string(start_and_end_subtitle_synchronization[1].rstrip('\n'))
-
-        return start_subtitle_synchronization, end_subtitle_synchronization
+    def __init_start_and_end_subtitle_synchronization(self, line):
+        line_split_arrow = line.split(' --> ')
+        self.start_subtitle_synchronization = self.__string_to_datetime(line_split_arrow[0])
+        self.end_subtitle_synchronization = self.__string_to_datetime(line_split_arrow[1].rstrip('\n'))
     
-    def __get_datetime_to_string(self, value):
+    def __string_to_datetime(self, value):
         return datetime.strptime(value, '%H:%M:%S,%f')
 
-    def __delayed_or_hastened(self, start, end):
+    def __delayed_or_hastened(self):
         if self.delayed:
-            start += timedelta(seconds=self.second)
-            end += timedelta(seconds=self.second)
+            self.start_subtitle_synchronization += timedelta(seconds=self.second)
+            self.end_subtitle_synchronization += timedelta(seconds=self.second)
         else:
-            start -= timedelta(seconds=self.second)
-            end -= timedelta(seconds=self.second)
+            self.start_subtitle_synchronization -= timedelta(seconds=self.second)
+            self.end_subtitle_synchronization -= timedelta(seconds=self.second)
 
-        return start, end
-
-    def __get_text_subtitle_synchronization(self, start, end):
-        str_start = str(start.time())
-        str_end = str(end.time())
+    def __get_text_subtitle_synchronization(self):
+        str_start = str(self.start_subtitle_synchronization.time())
+        str_end = str(self.end_subtitle_synchronization.time())
         
         return '%s --> %s\n' %(self.__format_text_subtitle_synchronization(str_start), self.__format_text_subtitle_synchronization(str_end))
     
