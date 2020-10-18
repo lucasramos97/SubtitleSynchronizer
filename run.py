@@ -29,8 +29,11 @@ synchronizer = SubtitleSynchronizer(delayed, second)
 
 for line in subtitle_not_synchronized:
     if is_synchronization_line(line):
-        new_line = synchronizer.synchronize(line)
-        subtitle_synchronized.write(new_line)
+        try:
+            new_line = synchronizer.synchronize(line)
+            subtitle_synchronized.write(new_line)
+        except:
+            subtitle_synchronized.write(line)
     else:
         subtitle_synchronized.write(line)
 
