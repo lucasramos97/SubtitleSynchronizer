@@ -17,7 +17,7 @@ def is_synchronization_line(line):
 try:
     value = sys.argv[1]
     delayed = get_delayed(value[0])
-    second = int(value[1])
+    second = int(''.join(value[1:]))
 except:
     print('example: python3 run.py -2 or python3 run.py +2')
     sys.exit()
